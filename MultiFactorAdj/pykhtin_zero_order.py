@@ -10,7 +10,7 @@ class memoized(object):
        self.cache = []
     def __call__(self, *args):
        try:
-           if self.cache and all([abs(cache_value-arg_value) < 0.00000001 
+           if self.cache and all([abs(cache_value-arg_value) < 0.00000001
                                   for (cache_value,arg_value) in zip(self.cache, args[0])]):
                return self.cache[-1]
            else:
@@ -27,7 +27,7 @@ class memoized(object):
     def __get__(self, obj, objtype):
        """Support instance methods."""
        return functools.partial(self.__call__, obj)
- 
+
 # corr is normally a function of pd
 @memoized
 def mem_c_value(key, pd, corr, alpha):
@@ -41,14 +41,14 @@ def c_value(pd, corr, alpha):
     return mem_c_value([pd, corr], pd, corr, alpha)
 
 @memoized
-def b_value(key, sector, extra_corr_matrix, pd_list, lgd_list, weight_list, 
+def b_value(key, sector, extra_corr_matrix, pd_list, lgd_list, weight_list,
             intra_corr_list, alpha):
-    result = 0 
+    result = 0
     issuer_args = zip(pd_list, lgd_list, weight_list, intra_corr_list)
     c_values = np.array([weight*lgd*c_value(pd, corr, alpha) for (pd, lgd, weight, corr) in issuer_args])
     return np.dot(c_values, np.array(extra_corr_matrix[sector]))
 
-def lagr_mult(extra_corr_matrix, pd_list, lgd_list, weight_list, 
+def lagr_mult(extra_corr_matrix, pd_list, lgd_list, weight_list,
               intra_corr_array, alpha):
     """ function to calculate the normalization factor called lambda in the orginal paper """
     sector_indices = range(len(extra_corr_matrix))
@@ -57,15 +57,15 @@ def lagr_mult(extra_corr_matrix, pd_list, lgd_list, weight_list,
     c_elements = np.dot(extra_corr_matrix,c_array)
     return math.sqrt(sum([c_el**2 for c_el in c_elements]))
 
-def multifactor_corr_array(extra_corr_matrix, pd_list, lgd_list, 
+def multifactor_corr_array(extra_corr_matrix, pd_list, lgd_list,
                            weight_list, intra_corr_list, alpha):
-    lambda_value = lagr_mult(extra_corr_matrix, pd_list, lgd_list, weight_list, 
+    lambda_value = lagr_mult(extra_corr_matrix, pd_list, lgd_list, weight_list,
                              intra_corr_list, alpha)
     sector_indeces = range(len(extra_corr_matrix))
-    b_value_array = np.array([ b_value([sector], sector, extra_corr_matrix, pd_list, lgd_list, 
+    b_value_array = np.array([ b_value([sector], sector, extra_corr_matrix, pd_list, lgd_list,
                                        weight_list, intra_corr_list, alpha)/lambda_value for sector in sector_indeces])
-    
-    
+
+
     return np.dot(extra_corr_matrix.T, b_value_array)
 
 def loss(extra_corr_matrix, pd_list, lgd_list, weight_list, intra_corr_list,
@@ -75,13 +75,13 @@ def loss(extra_corr_matrix, pd_list, lgd_list, weight_list, intra_corr_list,
     m_corr = multifactor_corr_array(extra_corr_matrix, pd_list, lgd_list, weight_list, intra_corr_list, alpha)
     a_array = intra_corr_list*m_corr
     factors = np.array([(norm_dist.ppf(pd)- a*norm_dist.ppf(1-alpha))/math.sqrt(1-(a**2)) for (pd, a) in zip(pd_list, a_array)])
-    
+
     return sum(weight_list*lgd_list*norm_dist.cdf(factors))
 
-def expected_shortfall(extra_corr_matrix, pd_list, lgd_list, weight_list, 
+def expected_shortfall(extra_corr_matrix, pd_list, lgd_list, weight_list,
                        intra_corr_list, alpha):
     norm_dist = stats.norm(0,1)
-    
+
     result = 0
     m_corr = multifactor_corr_array(extra_corr_matrix, pd_list, lgd_list, weight_list, intra_corr_list, alpha)
     a_array = intra_corr_list*m_corr
@@ -91,7 +91,7 @@ def expected_shortfall(extra_corr_matrix, pd_list, lgd_list, weight_list,
     higher1 = norm_dist.ppf(pd_list)
     higher2_el = -norm_dist.ppf(alpha)
     cum_array = np.array([stats.mvn.mvnun(lower, np.array([higher1_el, higher2_el]),
-                                          means, np.array([[1.0,a], [a ,1.0]]))[0] 
+                                          means, np.array([[1.0,a], [a ,1.0]]))[0]
                           for ( higher1_el, a) in zip( higher1, a_array)])
     return sum(weight_list*lgd_list*cum_array)/(1.0-alpha)
 
@@ -161,9 +161,9 @@ if __name__ == "__main__":
     if len(sys.argv) !=2:
         print "Usage pykhtin_zero_order.py [es|loss]"
     else:
-        if sys.argv[1] == "loss": 
+        if sys.argv[1] == "loss":
             main_loss(pd, lgd, vol_lgd, r_intra, alpha, x_list)
-        elif sys.argv[1] == "es": 
+        elif sys.argv[1] == "es":
             main_es(pd, lgd, vol_lgd, r_intra, alpha, x_list)
         else:
             print "wrong argument " + sys.argv[1]

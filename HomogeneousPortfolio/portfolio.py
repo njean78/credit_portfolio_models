@@ -1,4 +1,3 @@
-
 # general formula a_i = b_i x + c_i eps_i
 # where b_i = sqrt(rho_i) and c_i = sqrt(1-rho_i)
 # a_i = sqrt(rho_i) * x + sqrt(1-rho_i) eps_i
@@ -43,7 +42,7 @@ def expected_shortfall(percentile, default_probability, correlation, loss_given_
 
 def main():
     default_probability = 0.05
-    correlation = 0.2 
+    correlation = 0.2
     loss_given_default = 1.0
     x_list = pylab.arange(0.0, 1.00, 0.01)
     loss_f_values = [loss_funtion(i, default_probability, correlation, loss_given_default) for i in x_list]

@@ -19,7 +19,7 @@ def avg(in_list):
     return sum([i/tot for i in in_list])
 
 def cdi(alpha,weight_list, lgd_list,  pd_list, corr_list):
-    ck_list = [w*lgd*loss_var(alpha, pd, corr**2) 
+    ck_list = [w*lgd*loss_var(alpha, pd, corr**2)
                for (w, lgd, pd, corr) in zip(weight_list, lgd_list, pd_list, corr_list)]
     ck_sum = sum(ck_list)
     return sum([ck**2/ck_sum**2 for ck in ck_list])
@@ -49,7 +49,6 @@ def main_basel(sim_num, rho):
         x_values.append(avg(pds) )
     pylab.plot( x_values, results, 'b+')
     pylab.plot( x_values, asympt_results, 'go')
-    
 
 def main_df(sim_num, rho):
     d1 = random.Random()
@@ -71,9 +70,9 @@ def main_df(sim_num, rho):
         r_intra = np.array([correl_f(pds[0]), correl_f(pds[1])])
         exp_loss = sum(weights*lgds*pds)
         results.append((loss(extra_corr, pds, lgds, weights, r_intra, alpha)-exp_loss)/2)
-        asympt_results.append((sum([w*lgd*loss_var(alpha, pd, corr**2) 
+        asympt_results.append((sum([w*lgd*loss_var(alpha, pd, corr**2)
                                    for (w, lgd, pd, corr) in zip(weights, lgds, pds, r_intra)])-exp_loss)/2)
-        cdis.append(cdi(alpha,weights, lgds,  pds, r_intra)) 
+        cdis.append(cdi(alpha,weights, lgds,  pds, r_intra))
         x_values.append(avg(pds) )
     #pylab.plot( x_values, results, 'b+')
     #pylab.plot( x_values, asympt_results, 'go')
@@ -92,7 +91,7 @@ def main_3df(sim_num, rho_list):
     lgds = [ 1.0, 1.0]
     vol_lgd = [0.2, 0.2]
     alpha =0.999
-    
+
     fig = pylab.figure()
     ax = Axes3D(fig)
     fit_parameters = []
@@ -110,9 +109,9 @@ def main_3df(sim_num, rho_list):
             r_intra = np.array([correl_f(pds[0]), correl_f(pds[1])])
             exp_loss = sum(weights*lgds*pds)
             results.append((loss(extra_corr, pds, lgds, weights, r_intra, alpha)-exp_loss)/2)
-            asympt_results.append((sum([w*lgd*loss_var(alpha, pd, corr**2) 
+            asympt_results.append((sum([w*lgd*loss_var(alpha, pd, corr**2)
                                        for (w, lgd, pd, corr) in zip(weights, lgds, pds, r_intra)])-exp_loss)/2)
-            cdis.append(cdi(alpha,weights, lgds,  pds, r_intra)) 
+            cdis.append(cdi(alpha,weights, lgds,  pds, r_intra))
             x_values.append(avg(pds))
             #pylab.ylim(ymin=0.0, ymax=1.0)
             dfs = [i/j for (i,j) in zip(results, asympt_results)]
@@ -133,26 +132,24 @@ def main_3df(sim_num, rho_list):
                               linewidth=0, antialiased=False)
     ax.w_zaxis.set_major_locator(LinearLocator(10))
     ax.w_zaxis.set_major_formatter(FormatStrFormatter('%.03f'))
-    
+
     fig.colorbar(surf, shrink=0.5, aspect=5)
 
-    
 if __name__ == "__main__":
     sim_num = 3000
     if len(sys.argv) !=2:
         print "Usage cespedes.py [basel|df|3df]"
     else:
-        if sys.argv[1] == "basel": 
+        if sys.argv[1] == "basel":
             rho = 0.60
             main_basel(sim_num, rho)
-        elif sys.argv[1] == "df": 
+        elif sys.argv[1] == "df":
             rho = 0.60
             main_df(sim_num, rho)
-        elif sys.argv[1] == "3df": 
+        elif sys.argv[1] == "3df":
             rho_list = [0.0, 0.1, 0.2, 0.30, 0.4, 0.5, 0.6, 0.7, 0.8]
             main_3df(sim_num,rho_list)
-            
+
         else:
             print "wrong argument " + sys.argv[1]
         pylab.show()
-

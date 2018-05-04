@@ -18,8 +18,6 @@ def factorial(a):
 def combinatorial(a,b):
     return factorial(a)/(factorial(b)*factorial(a-b))
 
-
-
 def single_name_probability(loss, default_probability, correlation):
     norm_dist = stats.norm(0,1)
     inv1 = norm_dist.ppf(default_probability)
@@ -32,7 +30,7 @@ def k_default_probability(k, x, num_of_credits, default_probability, correlation
     norm_dist = stats.norm(0,1)
     p_x = single_name_probability(x, default_probability, correlation)
     return (p_x**k)*((1-p_x)**(num_of_credits-k))*norm_dist.pdf(x)
-    
+
 def loss_function(loss, num_of_credits, default_probability, correlation, loss_given_default):
     result = 0.0
     for k in range(int(math.floor(loss*num_of_credits/loss_given_default)+1)):
@@ -51,26 +49,26 @@ def expected_shortfall(es_percentile, var_values, num_of_credits, default_probab
     var_value = get_loss(es_percentile, var_values)
     for k in xrange(int(math.floor(var_value*num_of_credits/loss_given_default))+1, int(math.floor(num_of_credits/loss_given_default))+1):
         factor = combinatorial(num_of_credits,k)
-        prob = factor*integrate.quad( 
+        prob = factor*integrate.quad(
             lambda x : k_default_probability(k, x, num_of_credits, default_probability, correlation), -20.0, 20.0)[0]
         cum += prob
-        result+= k*prob    
+        result+= k*prob
     if cum:
         es_value = (result/num_of_credits-var_value*(cum-(1.0-es_percentile)) )/(1.0-es_percentile)
         return (es_value, es_percentile)
-    else: 
+    else:
         return (1.0, es_percentile)
 
 def main():
     num_of_credits = 40
     default_probability = 0.01
-    correlation = 0.2 
+    correlation = 0.2
     loss_given_default = 1.0
     x_list = pylab.arange(0.0, 0.30, 0.005)
     y_list = pylab.arange(0.8, 0.999, 0.001)
     loss_f_values = [loss_function(i, num_of_credits, default_probability, correlation, loss_given_default) for i in x_list]
     es_values = [expected_shortfall(i, zip(list(x_list), list(loss_f_values)), num_of_credits, default_probability, correlation, loss_given_default) for i in y_list]
-    
+
     pylab.xlabel("loss in percentage")
     pylab.ylabel("loss function values")
     pylab.plot(x_list, loss_f_values, 'b')
@@ -80,4 +78,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

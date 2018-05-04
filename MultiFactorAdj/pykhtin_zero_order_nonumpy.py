@@ -14,7 +14,7 @@ class memoized(object):
        self.cache = []
     def __call__(self, *args):
        try:
-           if self.cache and all([abs(cache_value-arg_value) < 0.00000001 
+           if self.cache and all([abs(cache_value-arg_value) < 0.00000001
                                   for (cache_value,arg_value) in zip(self.cache, args[0])]):
                return self.cache[-1]
            else:
@@ -31,7 +31,7 @@ class memoized(object):
     def __get__(self, obj, objtype):
        """Support instance methods."""
        return functools.partial(self.__call__, obj)
- 
+
 class Memoize(object):
     """Decorator that caches a function's return value each time it is called.
     If called later with the same arguments, the cached value is returned, and
@@ -72,11 +72,11 @@ def c_value(pd, lgd, weight, corr, alpha):
     return mem_c_value([pd, weight, corr], pd, lgd, weight, corr, alpha)
 
 @memoized
-def b_value(key, sector, extra_corr_matrix, pd_list, lgd_list, weight_list, 
+def b_value(key, sector, extra_corr_matrix, pd_list, lgd_list, weight_list,
             intra_corr_list, alpha):
-    lambda_value = lagr_mult(extra_corr_matrix, pd_list, lgd_list, weight_list, 
+    lambda_value = lagr_mult(extra_corr_matrix, pd_list, lgd_list, weight_list,
                              intra_corr_list, alpha)
-    result = 0 
+    result = 0
     issuer_args = zip(pd_list, lgd_list, weight_list, intra_corr_list)
     for issuer in range(len(pd_list)):
         # I love pattern matching!
@@ -84,18 +84,18 @@ def b_value(key, sector, extra_corr_matrix, pd_list, lgd_list, weight_list,
         result += c_value(pd, lgd, weight, corr, alpha)*extra_corr_matrix[sector][issuer]
     return  result/lambda_value
 
-def lagr_mult(extra_corr_matrix, pd_list, lgd_list, weight_list, 
+def lagr_mult(extra_corr_matrix, pd_list, lgd_list, weight_list,
               intra_corr_matrix, alpha):
     """ function to calculate the normalization factor called lambda in the orginal paper """
     result = 0
     sector_indices = range(len(extra_corr_matrix))
     for sector in sector_indices:
-        c_sum = c_times_alpha(extra_corr_matrix[sector], pd_list, lgd_list, 
+        c_sum = c_times_alpha(extra_corr_matrix[sector], pd_list, lgd_list,
                               weight_list, intra_corr_matrix, alpha)
         result += c_sum**2
     return math.sqrt(result)
 
-def c_times_alpha(extra_corr_row, pd_list, lgd_list, weight_list, 
+def c_times_alpha(extra_corr_row, pd_list, lgd_list, weight_list,
                   intra_corr_list, alpha):
     value = 0
     issuer_args = zip(pd_list, lgd_list, weight_list, intra_corr_list)
@@ -105,12 +105,12 @@ def c_times_alpha(extra_corr_row, pd_list, lgd_list, weight_list,
         value += extra_corr_row[issuer]*c_value(pd, lgd, weight, corr, alpha)
     return value
 
-def multifactor_corr(issuer, extra_corr_matrix, pd_list, lgd_list, 
+def multifactor_corr(issuer, extra_corr_matrix, pd_list, lgd_list,
                      weight_list, intra_corr_list, alpha):
     result = 0
     sector_indeces = range(len(extra_corr_matrix))
     for sector in sector_indeces:
-        b_val = b_value([sector], sector, extra_corr_matrix, pd_list, lgd_list, 
+        b_val = b_value([sector], sector, extra_corr_matrix, pd_list, lgd_list,
                         weight_list, intra_corr_list, alpha)
         result += extra_corr_matrix[sector][issuer]*b_val
     return result
@@ -120,7 +120,7 @@ def loss(extra_corr_matrix, pd_list, lgd_list, weight_list, intra_corr_list,
     norm_dist = stats.norm(0,1)
     result = 0
     for issuer in range(len(pd_list)):
-        a = intra_corr_list[issuer]*multifactor_corr(issuer, extra_corr_matrix, 
+        a = intra_corr_list[issuer]*multifactor_corr(issuer, extra_corr_matrix,
                                                      pd_list, lgd_list, weight_list,
                                                      intra_corr_list, alpha)
         factor = norm_dist.ppf(pd_list[issuer])- a*norm_dist.ppf(1-alpha)
@@ -128,7 +128,7 @@ def loss(extra_corr_matrix, pd_list, lgd_list, weight_list, intra_corr_list,
         result += weight_list[issuer]*lgd_list[issuer]*norm_dist.cdf(factor)
     return result
 
-def expected_shortfall(extra_corr_matrix, pd_list, lgd_list, weight_list, 
+def expected_shortfall(extra_corr_matrix, pd_list, lgd_list, weight_list,
                        intra_corr_list, alpha):
     norm_dist = stats.norm(0,1)
     lower  = np.array([-100.0, -100.0])
@@ -205,9 +205,9 @@ if __name__ == "__main__":
     if len(sys.argv) !=2:
         print "Usage pykhtin_zero_order.py [es|loss]"
     else:
-        if sys.argv[1] == "loss": 
+        if sys.argv[1] == "loss":
             main_loss(pd, lgd, vol_lgd, r_intra, alpha, x_list)
-        elif sys.argv[1] == "es": 
+        elif sys.argv[1] == "es":
             main_es(pd, lgd, vol_lgd, r_intra, alpha, x_list)
         else:
             print "wrong argument " + sys.argv[1]

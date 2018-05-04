@@ -1,11 +1,10 @@
-
 import math, random
 from scipy import stats
 import pylab
 import numpy as np
 from mpl_toolkits.mplot3d import Axes3D
 from Models.HomogeneousPortfolio.portfolio import loss_var
-from Models.MultiFactorAdj.pykhtin_zero_order import (loss, 
+from Models.MultiFactorAdj.pykhtin_zero_order import (loss,
                                                       expected_shortfall)
 from Models.MultiFactorAdj.pykhtin_first_order import (extend_array,
                                                        extend_matrix,
@@ -17,7 +16,6 @@ from Models.MultiFactorAdj.pykhtin_first_order import (extend_array,
                                                        delta_qa_ga,
                                                        delta_es_inf,
                                                        delta_es_ga)
-
 
 import sys, time
 
@@ -33,12 +31,12 @@ def pd_from_correl(correl):
 def extra_correl_f(sector_correl):
     correl_matrix = []
     for i in range(len(sector_correl)):
-        row = [] 
+        row = []
         for j in range(i):
             row.append(sector_correl[j][i-j])
         row.extend(sector_correl[i])
-        correl_matrix.append(row) 
-    # cholesky decomposition       
+        correl_matrix.append(row)
+    # cholesky decomposition
     mat = np.matrix(correl_matrix)
     return mat
 
@@ -87,14 +85,14 @@ def main_multifactor_loss(alpha,  pd_classes, pd_values, mean_pds, pds, weights,
     weight_list = extend_array(weight/m_list,m_list)
     vol_lgd_list = extend_array(vol_lgd,m_list)
     m_extra_corr = extend_matrix(extra_corr, m_list)
-    
+
     global _cached_deta_cumul
     global _cached_looped_deta_cumul
     global _cached_eta_inf
-    global _cached_cum_factor 
+    global _cached_cum_factor
     loss_value = loss(extra_corr, pd, lgd, weight, r_intra, alpha)
     #print "loss_value ", loss_value
-    inf_correction  = delta_qa_inf(extra_corr, pd, lgd, weight, r_intra, alpha, vol_lgd) 
+    inf_correction  = delta_qa_inf(extra_corr, pd, lgd, weight, r_intra, alpha, vol_lgd)
     #print "inf correction ", inf_correction
     _cached_deta_cumul.clear()
     _cached_deta_cumul.clear()
@@ -140,10 +138,10 @@ def main_multifactor_es(alpha, pd_classes, pd_values, mean_pds, pds, weights, m_
     global _cached_deta_cumul
     global _cached_looped_deta_cumul
     global _cached_eta_inf
-    global _cached_cum_factor 
+    global _cached_cum_factor
     loss_value = expected_shortfall(extra_corr, pd, lgd, weight, r_intra, alpha)
     #print "loss_value ", loss_value
-    inf_correction  = delta_es_inf(extra_corr, pd, lgd, weight, r_intra, alpha, vol_lgd) 
+    inf_correction  = delta_es_inf(extra_corr, pd, lgd, weight, r_intra, alpha, vol_lgd)
     #print "inf correction ", inf_correction
     _cached_deta_cumul.clear()
     _cached_deta_cumul.clear()
@@ -167,14 +165,14 @@ if __name__ == "__main__":
     #lgd = [ 0.4, 0.4]
     #vol_lgd = [0.2, 0.2]
     #r_intra = [0.5, 0.5]
-    
+
     pds = np.array([random.Random() for i in range(10)])
     weights = np.array([random.Random() for i in range(10)])
     m_list = np.array([500,]*10)
     lgd = np.array([1.0, ]*10)
     #lgd = np.array([random.Random() for i in range(10)])
     vol_lgd = np.array([0.2, ] *10)
-    
+
     sector_correl = [[100, 50, 42, 34, 45, 46, 57, 34, 10, 31, 69],
                      [100, 87, 61, 75, 84, 62, 30, 56, 73, 66],
                      [100, 67, 83, 92, 65, 32, 69, 82, 66],
@@ -205,7 +203,7 @@ if __name__ == "__main__":
                  'B' : 0.0558,
                  'CCC' : 0.186,
                  }
-    
+
     mean_pds = {'very low': pd_from_correl(21),
                 'low': pd_from_correl(23),
                 'average': pd_from_correl(25),
@@ -221,12 +219,12 @@ if __name__ == "__main__":
     else:
         points = []
         a = time.time()
-        if sys.argv[1] == "loss": 
+        if sys.argv[1] == "loss":
             for i in range(num_sim):
                 points+=[main_multifactor_loss(alpha, pd_classes, pd_values, mean_pds, pds, weights, m_list,sector_correl, lgd, vol_lgd, plot_styles)
                          ]
 
-        elif sys.argv[1] == "es": 
+        elif sys.argv[1] == "es":
             for i in range(num_sim):
                 points+=[main_multifactor_es(alpha, pd_classes, pd_values, mean_pds, pds, weights, m_list,sector_correl, lgd, vol_lgd, plot_styles)]
         else:
@@ -252,7 +250,7 @@ if __name__ == "__main__":
         print 'residues ' , residues
         print 'rank ', rank
         print 'singval ', singval
-        # show the graph            
+        # show the graph
         pylab.show()
         #pylab.xlabel("correlation")
         #pylab.legend( loc=0, ncol=2, borderaxespad=0.)

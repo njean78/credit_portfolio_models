@@ -15,16 +15,16 @@ import sys
 
 def main_var(num_of_credits, default_probability, correlation, loss_given_default, x_list):
     # binomial portfolio
-    loss_binomial = [var_binomial(i, num_of_credits, default_probability, 
-                                  correlation, loss_given_default) 
+    loss_binomial = [var_binomial(i, num_of_credits, default_probability,
+                                  correlation, loss_given_default)
                      for i in x_list]
     # homogeneous portfolio
-    loss_hp = [var_hp(i, default_probability, correlation, loss_given_default) 
+    loss_hp = [var_hp(i, default_probability, correlation, loss_given_default)
                for i in x_list]
     # first order correction
     loss_first_order_correction = [
-         var_adjustment(i, default_probability, correlation, 
-                        loss_given_default, num_of_credits) 
+         var_adjustment(i, default_probability, correlation,
+                        loss_given_default, num_of_credits)
         for i in loss_hp]
 
     loss_first_adjusted = [
@@ -34,7 +34,7 @@ def main_var(num_of_credits, default_probability, correlation, loss_given_defaul
     # second order correction
     loss_second_order_correction = [
         var_adjustment_second(i, default_probability, correlation,
-                              num_of_credits) 
+                              num_of_credits)
         for i in loss_hp]
     loss_second_adjusted = [
         (i+j)
@@ -49,19 +49,19 @@ def main_var(num_of_credits, default_probability, correlation, loss_given_defaul
 
 def main_es(num_of_credits, default_probability, correlation, loss_given_default, x_list, y_list):
     # binomial portfolio
-    loss_binomial = [var_binomial(i, num_of_credits, default_probability, 
-                              correlation, loss_given_default) 
+    loss_binomial = [var_binomial(i, num_of_credits, default_probability,
+                              correlation, loss_given_default)
                      for i in x_list]
-    es_binomial_values = [es_binomial(i, zip(x_list, loss_binomial), num_of_credits, default_probability, 
-                                      correlation, loss_given_default) 
+    es_binomial_values = [es_binomial(i, zip(x_list, loss_binomial), num_of_credits, default_probability,
+                                      correlation, loss_given_default)
                      for i in y_list]
     # homogeneous portfolio
-    es_hp_values = [es_hp(i, default_probability, correlation, loss_given_default) 
+    es_hp_values = [es_hp(i, default_probability, correlation, loss_given_default)
                     for i in y_list]
     # first order correction
     es_first_order_correction = [
-        es_adjustment(i, default_probability, correlation, 
-                       loss_given_default, num_of_credits) 
+        es_adjustment(i, default_probability, correlation,
+                       loss_given_default, num_of_credits)
         for i in y_list]
 
     es_first_adjusted = [
@@ -70,7 +70,7 @@ def main_es(num_of_credits, default_probability, correlation, loss_given_default
     # second order correction
     es_second_order_correction = [
         es_adjustment_second(i, default_probability, correlation,
-                             num_of_credits) 
+                             num_of_credits)
         for i in y_list]
     es_second_adjusted = [
         (i+j)
@@ -83,4 +83,3 @@ def main_es(num_of_credits, default_probability, correlation, loss_given_default
             {'name': 'second order adj' ,
              'data' : zip(es_second_adjusted, y_list)},]
     return data
-            
